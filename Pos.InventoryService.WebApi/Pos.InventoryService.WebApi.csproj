@@ -30,4 +30,10 @@
     <Folder Include="Controllers\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Pos.InventoryService.Application\Pos.InventoryService.Application.csproj" />
+    <ProjectReference Include="..\Pos.InventoryService.Infrastructure.Persistence\Pos.InventoryService.Infrastructure.Persistence.csproj" />
+    <ProjectReference Include="..\Pos.InventoryService.Infrastructure.Shared\Pos.InventoryService.Infrastructure.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

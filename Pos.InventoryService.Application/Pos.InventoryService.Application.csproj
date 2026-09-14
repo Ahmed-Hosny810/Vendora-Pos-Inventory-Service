@@ -9,10 +9,8 @@
   <ItemGroup>
     <Folder Include="DTOS\" />
     <Folder Include="Features\" />
-    <Folder Include="Interfaces\" />
-    <Folder Include="Mapping\" />
+    <Folder Include="Interfaces\Services\" />
     <Folder Include="Settings\" />
-    <Folder Include="Wrappers\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,6 +18,10 @@
     <PackageReference Include="FluentValidation" Version="12.1.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageReference Include="MediatR" Version="14.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pos.InventoryService.Domain\Pos.InventoryService.Domain.csproj" />
   </ItemGroup>
 
 </Project>
