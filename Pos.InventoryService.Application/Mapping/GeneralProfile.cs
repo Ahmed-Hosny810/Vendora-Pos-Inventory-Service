@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+using AutoMapper;
+using Pos.InventoryService.Application.Features.StockBalance.DTOs;
+using Pos.InventoryService.Domain.Models;
 
 
 namespace Pos.InventoryService.Application.Mapping
@@ -7,7 +9,7 @@ namespace Pos.InventoryService.Application.Mapping
     {
         public GeneralProfile()
         {
-            
+            CreateMap<StockBalance,StockBalanceDto>();
         }
     }
 }

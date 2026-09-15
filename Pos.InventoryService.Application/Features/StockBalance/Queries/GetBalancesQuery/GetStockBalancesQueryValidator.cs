@@ -1,0 +1,28 @@
+using FluentValidation;
+
+namespace Pos.InventoryService.Application.Features.StockBalance.Queries.GetBalancesQuery;
+
+public class GetStockBalancesQueryValidator : AbstractValidator<GetStockBalancesQuery>
+{
+    public GetStockBalancesQueryValidator()
+    {
+        RuleFor(x => x.Parameter).NotNull();
+
+        When(x => x.Parameter != null, () =>
+        {
+            RuleFor(x => x.Parameter.PageNumber)
+                .GreaterThan(0)
+                .Must((query, page) => (long)(page - 1) * query.Parameter.PageSize <= int.MaxValue)
+                .WithMessage("The requested page offset is too large.");
+            RuleFor(x => x.Parameter.PageSize).InclusiveBetween(1, 50);
+            RuleFor(x => x.Parameter.OrderKey).IsInEnum();
+
+            When(x => x.Parameter.Filter != null, () =>
+            {
+                RuleFor(x => x.Parameter.Filter!.ProductVariantId)
+                    .Must(id => !id.HasValue || id.Value != Guid.Empty)
+                    .WithMessage("ProductVariantId must be null or a non-empty GUID.");
+            });
+        });
+    }
+}

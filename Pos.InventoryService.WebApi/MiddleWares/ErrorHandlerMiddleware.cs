@@ -1,4 +1,4 @@
-﻿using Pos.InventoryService.Application.Exceptions;
+using Pos.InventoryService.Application.Exceptions;
 using Pos.InventoryService.Application.Wrappers;
 using System.Net;
 using System.Text.Json;
@@ -30,6 +30,9 @@ namespace Pos.InventoryService.WebApi.MiddleWares
                 var responseModel = new Response<string>() { Succeeded = false, Message = error?.Message };
                 switch (error)
                 {
+                    case UnauthorizedAccessException:
+                        response.StatusCode = (int)HttpStatusCode.Forbidden;
+                        break;
                     case Application.Exceptions.ApiException e:
                         // custom application error
                         response.StatusCode = (int)HttpStatusCode.BadRequest;
