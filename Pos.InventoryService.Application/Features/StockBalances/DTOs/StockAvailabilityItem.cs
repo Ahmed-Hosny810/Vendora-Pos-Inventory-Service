@@ -1,5 +1,5 @@
 ﻿
-namespace Pos.InventoryService.Application.Features.StockBalance.DTOs
+namespace Pos.InventoryService.Application.Features.StockBalances.DTOs
 {
     public class StockAvailabilityItem
     {

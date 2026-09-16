@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <Folder Include="DTOS\" />
-    <Folder Include="Features\StockBalance\Commands\" />
     <Folder Include="Settings\" />
   </ItemGroup>
 

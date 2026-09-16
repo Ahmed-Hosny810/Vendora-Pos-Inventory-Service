@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace Pos.InventoryService.Application.Features.StockBalance.Queries.GetBalancesQuery;
+namespace Pos.InventoryService.Application.Features.StockBalances.Queries.GetBalancesQuery;
 
 public class GetStockBalancesQueryValidator : AbstractValidator<GetStockBalancesQuery>
 {

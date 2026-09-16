@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
 using MediatR;
-using Pos.InventoryService.Application.Features.StockBalance.DTOs;
+using Pos.InventoryService.Application.Features.StockBalances.DTOs;
 using Pos.InventoryService.Application.Interfaces.Repositories;
 using Pos.InventoryService.Application.Interfaces.Services;
 using Pos.InventoryService.Application.Wrappers;
 using Pos.InventoryService.Domain.Models;
 
 
-namespace Pos.InventoryService.Application.Features.StockBalance.Queries.GetStockBatchQuey
+namespace Pos.InventoryService.Application.Features.StockBalances.Queries.GetStockBatchQuey
 {
     public class GetBatchStockAvailabilityQuery:IRequest<Result<IReadOnlyList<StockBalanceDto>>>
     {

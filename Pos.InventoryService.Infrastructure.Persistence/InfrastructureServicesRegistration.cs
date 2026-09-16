@@ -3,8 +3,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Pos.InventoryService.Application.Interfaces;
 using Pos.InventoryService.Application.Interfaces.Repositories;
+using Pos.InventoryService.Application.Interfaces.Services;
 using Pos.InventoryService.Infrastructure.Persistence.Contexts;
 using Pos.InventoryService.Infrastructure.Persistence.Repositories;
+using Pos.InventoryService.Infrastructure.Persistence.Service;
 using Pos.InventoryService.Infrastructure.Persistence.UnitofWork;
 
 
@@ -24,6 +26,7 @@ namespace Pos.InventoryService.Infrastructure.Persistence
 
             services.AddScoped(typeof(IGenericRepositoryAsync<,>), typeof(GenericRepositoryAsync<,>));
 
+            services.AddScoped<IInventoryItemValidationService,InventoryItemValidationService>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 

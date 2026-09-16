@@ -1,12 +1,12 @@
 ﻿using AutoMapper;
 using MediatR;
-using Pos.InventoryService.Application.Features.StockBalance.DTOs;
+using Pos.InventoryService.Application.Features.StockBalances.DTOs;
 using Pos.InventoryService.Application.Interfaces.Repositories;
 using Pos.InventoryService.Application.Interfaces.Services;
 using Pos.InventoryService.Application.Wrappers;
 
 
-namespace Pos.InventoryService.Application.Features.StockBalance.Queries.GetProductStock
+namespace Pos.InventoryService.Application.Features.StockBalances.Queries.GetProductStock
 {
     public class GetProductStockByProductIdQuery:IRequest<Result<StockBalanceDto>>
     {

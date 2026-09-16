@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Pos.InventoryService.Application.Features.StockBalance.Queries.GetBalancesQuery
+namespace Pos.InventoryService.Application.Features.StockBalances.Queries.GetBalancesQuery
 {
     public class GetStockBalancesQueryParameter: RequestParameter<StockBalanceOrderKey>
     {

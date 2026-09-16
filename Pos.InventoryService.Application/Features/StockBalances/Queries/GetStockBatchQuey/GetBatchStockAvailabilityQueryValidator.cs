@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 
 
-namespace Pos.InventoryService.Application.Features.StockBalance.Queries.GetStockBatchQuey
+namespace Pos.InventoryService.Application.Features.StockBalances.Queries.GetStockBatchQuey
 {
     public class GetBatchStockAvailabilityQueryValidator : AbstractValidator<GetBatchStockAvailabilityQuery>
     {

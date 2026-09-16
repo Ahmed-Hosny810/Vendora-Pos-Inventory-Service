@@ -33,6 +33,11 @@ namespace Pos.InventoryService.WebApi.MiddleWares
                     case UnauthorizedAccessException:
                         response.StatusCode = (int)HttpStatusCode.Forbidden;
                         break;
+
+                    case DuplicateStockWriteException:
+                        response.StatusCode = (int)HttpStatusCode.BadRequest;
+                        break;
+
                     case Application.Exceptions.ApiException e:
                         // custom application error
                         response.StatusCode = (int)HttpStatusCode.BadRequest;

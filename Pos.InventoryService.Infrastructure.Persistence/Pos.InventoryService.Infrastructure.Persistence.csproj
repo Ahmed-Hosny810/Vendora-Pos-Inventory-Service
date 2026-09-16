@@ -19,10 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Contexts\DbConfigurations\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Pos.InventoryService.Application\Pos.InventoryService.Application.csproj" />
     <ProjectReference Include="..\Pos.InventoryService.Domain\Pos.InventoryService.Domain.csproj" />
   </ItemGroup>
