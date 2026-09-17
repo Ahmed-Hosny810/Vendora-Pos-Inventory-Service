@@ -1,4 +1,4 @@
-using Pos.InventoryService.Application.Features.StockBalance.Queries.GetBalancesQuery;
+using Pos.InventoryService.Application.Features.StockBalances.Queries.GetBalancesQuery;
 using Pos.InventoryService.Domain.Models;
 using System;
 using System.Collections.Generic;

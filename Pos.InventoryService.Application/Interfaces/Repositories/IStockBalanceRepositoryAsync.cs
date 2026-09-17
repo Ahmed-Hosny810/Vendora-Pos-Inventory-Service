@@ -1,5 +1,5 @@
-﻿using Pos.InventoryService.Application.Features.StockBalance.DTOs;
-using Pos.InventoryService.Application.Features.StockBalance.Queries.GetBalancesQuery;
+﻿using Pos.InventoryService.Application.Features.StockBalances.DTOs;
+using Pos.InventoryService.Application.Features.StockBalances.Queries.GetBalancesQuery;
 using Pos.InventoryService.Application.Wrappers;
 using Pos.InventoryService.Domain.Models;
 

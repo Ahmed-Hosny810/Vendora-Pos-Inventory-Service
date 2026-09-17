@@ -1,7 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Pos.InventoryService.Application.Features.StockMovements.Queries.GetMovementsHistoryQuery;
 using Pos.InventoryService.Application.Interfaces.Repositories;
+using Pos.InventoryService.Application.Wrappers;
 using Pos.InventoryService.Domain.Models;
 using Pos.InventoryService.Infrastructure.Persistence.Contexts;
+using Pos.InventoryService.Infrastructure.Persistence.QueryExtensions;
 
 namespace Pos.InventoryService.Infrastructure.Persistence.Repositories
 {
@@ -12,6 +15,26 @@ namespace Pos.InventoryService.Infrastructure.Persistence.Repositories
         public StockMovementRepository(ApplicationDbContext context) : base(context)
         {
             _context = context;
+        }
+
+        public async Task<PagedResponse<IEnumerable<StockMovement>>> GetMovementsHistoryPagedAsync(Guid tenantId, StockMovementFilter? filter, StockMovementOrderKey orderKey, bool orderDescending, int pageNumber, int pageSize, CancellationToken cancellationToken)
+        {
+            pageNumber = pageNumber <= 0 ? 1 : pageNumber;
+            pageSize = pageSize <= 0 ? 10 : pageSize;
+
+            var query = _context.StockMovements.AsNoTracking();
+
+            var filteredQuery=query.ApplyFilter(tenantId, filter);
+
+            var totalCount=await filteredQuery.CountAsync(cancellationToken);
+
+            var movements=await filteredQuery
+                .ApplyOrdering(orderKey, orderDescending)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+
+            return new PagedResponse<IEnumerable<StockMovement>>(movements,pageNumber,pageSize,totalCount);
         }
 
         public async Task<StockMovement> GetOpeningMovementByRequestIdAsync(Guid tenantId, Guid requestId, CancellationToken cancellationToken)
