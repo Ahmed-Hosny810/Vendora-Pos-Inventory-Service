@@ -1,4 +1,5 @@
 using AutoMapper;
+using Pos.InventoryService.Application.Features.StockAdjustments.DTOS;
 using Pos.InventoryService.Application.Features.StockBalances.DTOs;
 using Pos.InventoryService.Application.Features.StockMovements.DTOS;
 using Pos.InventoryService.Domain.Models;
@@ -12,6 +13,8 @@ namespace Pos.InventoryService.Application.Mapping
         {
             CreateMap<StockBalance,StockBalanceDto>();
             CreateMap<StockMovement, StockMovementDto>();
+            CreateMap<StockAdjustment, StockAdjustmentDetailsDto>();
+            CreateMap<StockAdjustmentItem, StockAdjustmentItemDto>();
         }
     }
 }

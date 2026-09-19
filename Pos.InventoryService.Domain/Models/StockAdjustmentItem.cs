@@ -7,5 +7,6 @@ public class StockAdjustmentItem : InventoryEntity
     public decimal OldQuantity { get; set; }
     public decimal NewQuantity { get; set; }
     public decimal QuantityDelta { get; set; }
+    public byte[] BalanceRowVersionAtCount { get; set; } = Array.Empty<byte>();
     public StockAdjustment Adjustment { get; set; } = null!;
 }

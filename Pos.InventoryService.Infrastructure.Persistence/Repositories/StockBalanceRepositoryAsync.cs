@@ -28,7 +28,6 @@ namespace Pos.InventoryService.Infrastructure.Persistence.Repositories
              CancellationToken cancellationToken)
         {
             return await _context.StockBalances
-                .AsNoTracking()
                 .SingleOrDefaultAsync(
                     sb => sb.TenantId == tenantId
                        && sb.BranchId == branchId

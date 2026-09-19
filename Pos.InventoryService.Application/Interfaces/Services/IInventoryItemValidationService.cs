@@ -3,7 +3,7 @@ namespace Pos.InventoryService.Application.Interfaces.Services
 {
     public interface IInventoryItemValidationService
     {
-        Task ValidateOpeningStockAsync(
+        Task ValidateStockItemAsync(
             Guid tenantId,
             Guid branchId,
             Guid productId,

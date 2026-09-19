@@ -9,10 +9,19 @@ public class StockAdjustmentItemConfiguration : IEntityTypeConfiguration<StockAd
     public void Configure(EntityTypeBuilder<StockAdjustmentItem> builder)
     {
         builder.ToTable("StockAdjustmentItems", "inventory");
+
         builder.HasKey(x => x.Id);
+
         builder.Property(x => x.OldQuantity).HasPrecision(18, 3);
+
         builder.Property(x => x.NewQuantity).HasPrecision(18, 3);
+
         builder.Property(x => x.QuantityDelta).HasPrecision(18, 3);
+
+        builder.Property(x => x.BalanceRowVersionAtCount)
+                .HasMaxLength(8)
+                .IsRequired();
+
         builder.HasOne(x => x.Adjustment).WithMany(x => x.Items)
             .HasForeignKey(x => new { x.TenantId, x.AdjustmentId })
             .HasPrincipalKey(x => new { x.TenantId, x.Id })

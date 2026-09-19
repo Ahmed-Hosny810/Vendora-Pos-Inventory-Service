@@ -26,6 +26,12 @@ namespace Pos.InventoryService.Infrastructure.Persistence
 
             services.AddScoped(typeof(IGenericRepositoryAsync<,>), typeof(GenericRepositoryAsync<,>));
 
+            services.AddScoped<IStockBalanceRepositoryAsync, StockBalanceRepositoryAsync>();
+
+            services.AddScoped<IStockMovementRepository, StockMovementRepository>();
+
+            services.AddScoped<IStockAdjustmentRepository, StockAdjustmentRepository>();
+
             services.AddScoped<IInventoryItemValidationService,InventoryItemValidationService>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();

@@ -67,7 +67,7 @@ namespace Pos.InventoryService.Application.Features.StockBalances.Commands.AddOp
             if (existingMovement != null)
                 return GetReplayResult(existingMovement, request);
 
-            await _itemValidationService.ValidateOpeningStockAsync(
+            await _itemValidationService.ValidateStockItemAsync(
                 tenantId.Value,
                 request.BranchId,
                 request.ProductId,

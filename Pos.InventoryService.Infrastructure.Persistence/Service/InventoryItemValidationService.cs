@@ -19,7 +19,7 @@ namespace Pos.InventoryService.Infrastructure.Persistence.Service
         {
             _context = context;
         }
-        public async Task ValidateOpeningStockAsync(Guid tenantId, Guid branchId, Guid productId, Guid? productVariantId, decimal quantity, CancellationToken cancellationToken)
+        public async Task ValidateStockItemAsync(Guid tenantId, Guid branchId, Guid productId, Guid? productVariantId, decimal quantity, CancellationToken cancellationToken)
         {
             if (tenantId == Guid.Empty)
                 throw new UnauthorizedAccessException(
