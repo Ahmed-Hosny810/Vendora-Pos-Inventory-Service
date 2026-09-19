@@ -13,5 +13,8 @@ public class StockReservationConfiguration : IEntityTypeConfiguration<StockReser
         builder.Property(x => x.ReferenceType).HasMaxLength(50).IsRequired();
         builder.Property(x => x.Status).HasMaxLength(30).IsRequired();
         builder.Property(x => x.RowVersion).IsRowVersion();
+
+        builder.HasIndex(x => new { x.TenantId, x.ReferenceId })
+                .IsUnique();
     }
 }
