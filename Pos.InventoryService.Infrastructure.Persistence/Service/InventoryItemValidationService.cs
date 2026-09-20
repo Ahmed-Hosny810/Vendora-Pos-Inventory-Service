@@ -9,16 +9,24 @@ using System.Text;
 
 namespace Pos.InventoryService.Infrastructure.Persistence.Service
 {
+    /// <summary>
+    /// Implements inventory item validation through EF Core queries over Branch and Catalog read models.
+    /// </summary>
     public class InventoryItemValidationService : IInventoryItemValidationService
     {
 
         private const string ActiveStatus = "Active";
         private readonly ApplicationDbContext _context;
 
+        /// <summary>
+        /// Creates a validation service using the current scope's database context.
+        /// </summary>
+        /// <param name="context">The context used to query the external read models.</param>
         public InventoryItemValidationService(ApplicationDbContext context)
         {
             _context = context;
         }
+        /// <inheritdoc />
         public async Task ValidateStockItemAsync(Guid tenantId, Guid branchId, Guid productId, Guid? productVariantId, decimal quantity, CancellationToken cancellationToken)
         {
             if (tenantId == Guid.Empty)

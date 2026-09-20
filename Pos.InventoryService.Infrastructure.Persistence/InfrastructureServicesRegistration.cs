@@ -33,6 +33,7 @@ namespace Pos.InventoryService.Infrastructure.Persistence
             services.AddScoped<IStockAdjustmentRepository, StockAdjustmentRepository>();
 
             services.AddScoped<IStockReservationRepositoryAsync, StockReservationRepositoryAsync>();
+            services.AddScoped<IStockTransferRepositoryAsync, StockTransferRepositoryAsync>();
 
             services.AddScoped<IInventoryItemValidationService,InventoryItemValidationService>();
 
