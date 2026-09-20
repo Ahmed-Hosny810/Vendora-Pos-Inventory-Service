@@ -1,8 +1,10 @@
 
 using Pos.InventoryService.Application;
+using Pos.InventoryService.Application.Interfaces.Services;
 using Pos.InventoryService.Infrastructure.Persistence;
 using Pos.InventoryService.Infrastructure.Shared;
 using Pos.InventoryService.WebApi.Extensions;
+using Pos.InventoryServiceWebApi.Services;
 using Serilog;
 
 namespace Pos.InventoryService.WebApi
@@ -35,11 +37,13 @@ namespace Pos.InventoryService.WebApi
 
             builder.Services.AddSharedInfrastructureServices();
 
-            builder.Services.AddApplicationLayer();
+            builder.Services.AddApplicationLayer(builder.Configuration);
 
             builder.Services.AddControllers();
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddOpenApi();
+
+            builder.Services.AddHttpContextAccessor();
+
+            builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
             // Swagger (via extension)
             builder.Services.AddSwaggerExtension();
