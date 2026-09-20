@@ -35,7 +35,8 @@ namespace Pos.InventoryService.WebApi.MiddleWares
                         break;
 
                     case DuplicateStockWriteException:
-                        response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    case ConcurrencyConflictException:
+                        response.StatusCode = (int)HttpStatusCode.Conflict;
                         break;
 
                     case Application.Exceptions.ApiException e:

@@ -12,7 +12,20 @@ namespace Pos.InventoryService.WebApi.Extensions
         {
             services.AddEndpointsApiExplorer();
             services.ConfigureOptions<ConfigureSwaggerOptions>();
-            services.AddSwaggerGen();
+            services.AddSwaggerGen(options =>
+            {
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    Description = "Paste your access token only, without the Bearer prefix."
+                });
+
+                options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+                {
+                    [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+                });
+            });
         }
 
         public static void UseSwaggerExtension(this IApplicationBuilder app)
@@ -27,7 +40,7 @@ namespace Pos.InventoryService.WebApi.Extensions
                 {
                     options.SwaggerEndpoint(
                         $"/swagger/{description.GroupName}/swagger.json",
-                        $"Vendora-Pos Catalog Service API {description.GroupName.ToUpperInvariant()}"
+                        $"Vendora-Pos Inventory Service API {description.GroupName.ToUpperInvariant()}"
                     );
                 }
                 options.RoutePrefix = "swagger";
@@ -46,7 +59,7 @@ namespace Pos.InventoryService.WebApi.Extensions
                     new HeaderApiVersionReader("x-api-version"),
                     new QueryStringApiVersionReader("api-version")
                 );
-            }).AddApiExplorer(options =>
+            }).AddMvc().AddApiExplorer(options =>
             {
                 options.GroupNameFormat = "'v'VVV";
                 options.SubstituteApiVersionInUrl = true;
@@ -69,7 +82,7 @@ namespace Pos.InventoryService.WebApi.Extensions
             {
                 options.SwaggerDoc(description.GroupName, new OpenApiInfo
                 {
-                    Title = "Vendora-Pos Catalog Service API",
+                    Title = "Vendora-Pos Inventory Service API",
                     Version = description.ApiVersion.ToString(),
                     Description = description.IsDeprecated
                         ? "This API version is deprecated."

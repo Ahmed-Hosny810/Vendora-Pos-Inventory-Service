@@ -4,6 +4,8 @@ using Pos.InventoryService.Application.Interfaces.Services;
 using Pos.InventoryService.Infrastructure.Persistence;
 using Pos.InventoryService.Infrastructure.Shared;
 using Pos.InventoryService.WebApi.Extensions;
+using Pos.InventoryService.WebApi.MiddleWares;
+using Pos.InventoryService.WebApi.Policies;
 using Pos.InventoryServiceWebApi.Services;
 using Serilog;
 
@@ -35,11 +37,14 @@ namespace Pos.InventoryService.WebApi
 
             builder.Services.AddPersistenceServices(builder.Configuration);
 
-            builder.Services.AddSharedInfrastructureServices();
+            builder.Services.AddSharedInfrastructureServices(builder.Configuration);
 
             builder.Services.AddApplicationLayer(builder.Configuration);
 
             builder.Services.AddControllers();
+
+            builder.Services.AddAuthenticationServices(builder.Configuration);
+            builder.Services.AddAppPolicies();
 
             builder.Services.AddHttpContextAccessor();
 
@@ -49,6 +54,8 @@ namespace Pos.InventoryService.WebApi
             builder.Services.AddSwaggerExtension();
 
             var app = builder.Build();
+
+            app.UseMiddleware<ErrorHandlerMiddleware>();
 
             
             if (app.Environment.IsDevelopment())
