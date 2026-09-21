@@ -16,6 +16,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<StockTransfer> StockTransfers => Set<StockTransfer>();
     public DbSet<StockTransferItem> StockTransferItems => Set<StockTransferItem>();
     public DbSet<LowStockAlert> LowStockAlerts => Set<LowStockAlert>();
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

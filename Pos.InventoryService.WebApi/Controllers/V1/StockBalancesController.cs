@@ -9,6 +9,7 @@ using Pos.InventoryService.Application.Features.StockBalances.Queries.GetProduct
 using Pos.InventoryService.Application.Features.StockBalances.Queries.GetStockBatchQuey;
 using Pos.InventoryService.Application.Features.StockBalances.Queries.GetBalancesQuery;
 using Pos.InventoryService.Application.Features.StockBalances.DTOs;
+using Pos.InventoryService.Application.Features.StockBalances.Commands.UpdateThreshold;
 
 namespace Pos.InventoryService.WebApi.Controllers.V1
 {
@@ -64,6 +65,7 @@ namespace Pos.InventoryService.WebApi.Controllers.V1
         }
 
         [HttpPost("opening-stock")]
+        
         [Authorize(Policy = InventoryPolicies.OpeningStock)]
         public async Task<IActionResult> AddOpeningStock(
             [FromBody] AddOpeningStockCommand command,

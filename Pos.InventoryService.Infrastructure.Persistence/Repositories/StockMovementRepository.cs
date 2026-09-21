@@ -53,6 +53,17 @@ namespace Pos.InventoryService.Infrastructure.Persistence.Repositories
                 cancellationToken);
         }
 
+        public Task<bool> ReturnRestockExistsAsync(
+            Guid tenantId, Guid returnId, CancellationToken cancellationToken)
+        {
+            return _context.StockMovements.AnyAsync(
+                x => x.TenantId == tenantId &&
+                     x.ReferenceType == StockReferenceType.Return &&
+                     x.ReferenceId == returnId &&
+                     x.MovementType == StockMovementType.Return,
+                cancellationToken);
+        }
+
         public async Task<StockMovement> GetOpeningMovementByRequestIdAsync(Guid tenantId, Guid requestId, CancellationToken cancellationToken)
         {
             return await _context.StockMovements.FirstOrDefaultAsync(m => m.ReferenceId == requestId && m.TenantId == tenantId, cancellationToken);

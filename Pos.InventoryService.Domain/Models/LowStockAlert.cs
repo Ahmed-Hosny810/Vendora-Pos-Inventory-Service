@@ -11,5 +11,6 @@ public class LowStockAlert : InventoryEntity
     public string Status { get; set; } = LowStockAlertStatus.Active;
     public DateTime DetectedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
+    public DateTime? ResolvedAt { get; set; }
     public byte[] RowVersion { get; set; } = Array.Empty<byte>();
 }

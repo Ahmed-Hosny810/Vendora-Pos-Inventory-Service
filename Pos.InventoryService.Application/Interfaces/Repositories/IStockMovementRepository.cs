@@ -6,6 +6,9 @@ namespace Pos.InventoryService.Application.Interfaces.Repositories
 {
     public interface IStockMovementRepository:IGenericRepositoryAsync<StockMovement,Guid>
     {
+        Task<bool> ReturnRestockExistsAsync(
+            Guid tenantId, Guid returnId, CancellationToken cancellationToken);
+
         Task<StockMovement> GetOpeningMovementByRequestIdAsync(Guid tenantId,Guid requestId , CancellationToken cancellationToken);
         Task<PagedResponse<IEnumerable<StockMovement>>> GetMovementsHistoryPagedAsync(
             Guid tenantId,
