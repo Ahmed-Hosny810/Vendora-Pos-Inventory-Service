@@ -116,16 +116,14 @@ namespace Pos.InventoryService.Application.Features.StockBalances.Commands.AddOp
                 BranchId = request.BranchId,
                 ProductId = request.ProductId,
                 ProductVariantId = request.ProductVariantId,
-
                 MovementType = StockMovementType.OpeningStock,
                 ReferenceType = StockReferenceType.OpeningStock,
                 ReferenceId = request.RequestId,
-
+                IdempotencyKey = request.RequestId,
                 QuantityDelta = request.Quantity,
                 BeforeQty = 0,
                 AfterQty = request.Quantity,
                 LowStockThreshold = request.LowStockThreshold,
-
                 CreatedByUserId = userId,
                 CreatedAt = now
             };

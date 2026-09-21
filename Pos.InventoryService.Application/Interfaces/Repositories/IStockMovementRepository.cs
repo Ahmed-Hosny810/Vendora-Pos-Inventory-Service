@@ -16,5 +16,12 @@ namespace Pos.InventoryService.Application.Interfaces.Repositories
             int pageSize,
             CancellationToken cancellationToken
             );
+
+
+        Task<bool> TransferReceiptExistsAsync(
+            Guid tenantId,
+            Guid transferId,
+            Guid idempotencyKey,
+            CancellationToken cancellationToken);
     }
 }

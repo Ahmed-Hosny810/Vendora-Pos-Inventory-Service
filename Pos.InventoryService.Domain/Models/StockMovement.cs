@@ -12,6 +12,8 @@ public class StockMovement : InventoryEntity
     public string ReferenceType { get; set; } = string.Empty;
     public Guid ReferenceId { get; set; }
     public decimal? LowStockThreshold { get; set; }
+
+    public Guid? IdempotencyKey { get; set; }
     public Guid CreatedByUserId { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

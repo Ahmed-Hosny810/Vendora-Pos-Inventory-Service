@@ -2,6 +2,7 @@
 using Pos.InventoryService.Application.Features.StockMovements.Queries.GetMovementsHistoryQuery;
 using Pos.InventoryService.Application.Interfaces.Repositories;
 using Pos.InventoryService.Application.Wrappers;
+using Pos.InventoryService.Domain.Constants;
 using Pos.InventoryService.Domain.Models;
 using Pos.InventoryService.Infrastructure.Persistence.Contexts;
 using Pos.InventoryService.Infrastructure.Persistence.QueryExtensions;
@@ -35,6 +36,21 @@ namespace Pos.InventoryService.Infrastructure.Persistence.Repositories
                 .ToListAsync(cancellationToken);
 
             return new PagedResponse<IEnumerable<StockMovement>>(movements,pageNumber,pageSize,totalCount);
+        }
+
+        public Task<bool> TransferReceiptExistsAsync(
+            Guid tenantId,
+            Guid transferId,
+            Guid idempotencyKey,
+            CancellationToken cancellationToken)
+        {
+            return _context.StockMovements.AnyAsync(
+                x => x.TenantId == tenantId &&
+                     x.ReferenceType == StockReferenceType.StockTransfer &&
+                     x.ReferenceId == transferId &&
+                     x.MovementType == StockMovementType.TransferIn &&
+                     x.IdempotencyKey == idempotencyKey,
+                cancellationToken);
         }
 
         public async Task<StockMovement> GetOpeningMovementByRequestIdAsync(Guid tenantId, Guid requestId, CancellationToken cancellationToken)

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Pos.InventoryService.Application.Features.StockTransfers.Queries.GetAllQuery;
 using Pos.InventoryService.Application.Interfaces.Repositories;
 using Pos.InventoryService.Application.Wrappers;
+using Pos.InventoryService.Domain.Constants;
 using Pos.InventoryService.Domain.Models;
 using Pos.InventoryService.Infrastructure.Persistence.Contexts;
 using Pos.InventoryService.Infrastructure.Persistence.QueryExtensions;
