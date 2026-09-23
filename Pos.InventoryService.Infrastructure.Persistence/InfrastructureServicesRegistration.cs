@@ -35,11 +35,15 @@ namespace Pos.InventoryService.Infrastructure.Persistence
             services.AddScoped<IStockReservationRepositoryAsync, StockReservationRepositoryAsync>();
 
             services.AddScoped<IStockTransferRepositoryAsync, StockTransferRepositoryAsync>();
+
             services.AddScoped<ILowStockAlertRepositoryAsync, LowStockAlertRepositoryAsync>();
+
+            services.AddScoped<IOutboxRepositoryAsync, OutboxRepositoryAsync>();
 
             services.AddScoped<IInventoryItemValidationService,InventoryItemValidationService>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+
             services.AddScoped<LowStockAlertEvaluator>();
 
             return services;
