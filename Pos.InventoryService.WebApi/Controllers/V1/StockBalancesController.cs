@@ -64,8 +64,21 @@ namespace Pos.InventoryService.WebApi.Controllers.V1
             return Ok(new Response<IReadOnlyList<StockBalanceDto>>(data: result.Value!));
         }
 
+        [HttpPut("threshold")]
+        [Authorize(Policy = InventoryPolicies.ManageThresholds)]
+        public async Task<IActionResult> UpdateThreshold(
+            [FromBody] UpdateStockThresholdCommand command,
+            CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (result.IsFailure)
+                return Conflict(new Response<Guid>(message: string.Join(", ", result.Errors)));
+
+            return Ok(new Response<Guid>(data: result.Value));
+        }
+
         [HttpPost("opening-stock")]
-        
         [Authorize(Policy = InventoryPolicies.OpeningStock)]
         public async Task<IActionResult> AddOpeningStock(
             [FromBody] AddOpeningStockCommand command,

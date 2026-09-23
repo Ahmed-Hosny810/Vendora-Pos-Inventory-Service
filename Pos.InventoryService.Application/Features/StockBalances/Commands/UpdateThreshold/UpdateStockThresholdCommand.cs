@@ -54,7 +54,6 @@ public class UpdateStockThresholdCommandHandler
         balance.UpdatedAt = DateTime.UtcNow;
         try
         {
-            // The unit of work evaluates low-stock changes before committing.
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
         catch (ConcurrencyConflictException)

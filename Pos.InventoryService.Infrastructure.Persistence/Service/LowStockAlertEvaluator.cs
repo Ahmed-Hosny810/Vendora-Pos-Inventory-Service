@@ -20,6 +20,7 @@ public class LowStockAlertEvaluator
     public async Task EvaluateChangedBalancesAsync(CancellationToken cancellationToken)
     {
         _context.ChangeTracker.DetectChanges();
+
         var balances = _context.ChangeTracker.Entries<StockBalance>()
             .Where(entry => entry.State == EntityState.Added ||
                 (entry.State == EntityState.Modified &&
@@ -28,16 +29,61 @@ public class LowStockAlertEvaluator
             .Select(entry => entry.Entity)
             .ToList();
 
+        if (balances.Count == 0)
+            return;
+
+        var tenantIds = balances
+            .Select(x => x.TenantId)
+            .Distinct()
+            .ToList();
+
+        var branchIds = balances
+            .Select(x => x.BranchId)
+            .Distinct()
+            .ToList();
+
+        var productIds = balances
+            .Select(x => x.ProductId)
+            .Distinct()
+            .ToList();
+
+        var variantIds = balances
+            .Where(x => x.ProductVariantId.HasValue)
+            .Select(x => x.ProductVariantId!.Value)
+            .Distinct()
+            .ToList();
+
+        var includesWithoutVariant = balances
+            .Any(x => !x.ProductVariantId.HasValue);
+
+
+        var existingAlerts = await _context.LowStockAlerts
+            .Where(x =>
+                x.Status == LowStockAlertStatus.Active &&
+                tenantIds.Contains(x.TenantId) &&
+                branchIds.Contains(x.BranchId) &&
+                productIds.Contains(x.ProductId) &&
+                (
+                    (x.ProductVariantId.HasValue &&
+                     variantIds.Contains(x.ProductVariantId.Value))
+                    ||
+                    (!x.ProductVariantId.HasValue && includesWithoutVariant)
+                ))
+            .ToListAsync(cancellationToken);
+
+        var alertLookup = existingAlerts.ToDictionary(x => (x.TenantId, x.BranchId, x.ProductId, x.ProductVariantId));
+
         var now = DateTime.UtcNow;
+
         foreach (var balance in balances)
         {
-            var alert = await _context.LowStockAlerts.SingleOrDefaultAsync(
-                x => x.TenantId == balance.TenantId &&
-                     x.BranchId == balance.BranchId &&
-                     x.ProductId == balance.ProductId &&
-                     x.ProductVariantId == balance.ProductVariantId &&
-                     x.Status == LowStockAlertStatus.Active,
-                cancellationToken);
+            var key = (
+                balance.TenantId,
+                balance.BranchId,
+                balance.ProductId,
+                balance.ProductVariantId);
+
+            alertLookup.TryGetValue(key, out var alert);
 
             if (balance.QuantityOnHand > balance.LowStockThreshold)
             {
@@ -61,7 +107,7 @@ public class LowStockAlertEvaluator
                 continue;
             }
 
-            // A new low-stock episode gets a new alert and a stable event ID.
+            // A new low-stock gets a new alert and a new event ID.
             alert = new LowStockAlert
             {
                 Id = Guid.NewGuid(),
@@ -74,19 +120,23 @@ public class LowStockAlertEvaluator
                 Status = LowStockAlertStatus.Active,
                 DetectedAt = now
             };
+
             _context.LowStockAlerts.Add(alert);
+            alertLookup.Add(key, alert);
 
             var eventId = Guid.NewGuid();
-            var notification = new LowStockDetected(
+
+            var lowStockEvent = new LowStockDetected(
                 eventId, balance.TenantId, alert.Id, balance.BranchId,
                 balance.ProductId, balance.ProductVariantId,
                 balance.QuantityOnHand, balance.LowStockThreshold, now);
+
             _context.OutboxMessages.Add(new OutboxMessage
             {
                 Id = eventId,
                 TenantId = balance.TenantId,
                 EventType = nameof(LowStockDetected),
-                Payload = JsonSerializer.Serialize(notification),
+                Payload = JsonSerializer.Serialize(lowStockEvent),
                 OccurredAt = now
             });
         }

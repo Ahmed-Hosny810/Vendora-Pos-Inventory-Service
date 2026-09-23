@@ -10,6 +10,7 @@ namespace Pos.InventoryService.Application.Features.StockBalances.DTOs
         public decimal QuantityOnHand { get; set; }
         public decimal QuantityReserved { get; set; }
         public decimal LowStockThreshold { get; set; }
+        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public decimal AvailableQuantity => QuantityOnHand - QuantityReserved;
