@@ -58,7 +58,7 @@ namespace Pos.InventoryService.Application.Features.StockReservations.Commands.C
 
             // 2. Check whether this sale already has a reservation.
             var existingReservation =
-                await _stockReservationRepository.GetByIdAsync(
+                await _stockReservationRepository.GetByReferenceIdAsync(
                     tenantId.Value,
                     request.SaleId,
                     cancellationToken);

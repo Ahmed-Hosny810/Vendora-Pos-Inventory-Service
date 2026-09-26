@@ -5,7 +5,7 @@ namespace Pos.InventoryService.Infrastructure.Persistence.QueryExtensions
 {
     public static class StockMovementQueryExtension
     {
-        public static IQueryable<StockMovement> ApplyFilter(this IQueryable<StockMovement> query,Guid tenantId,StockMovementFilter filter)
+        public static IQueryable<StockMovement> ApplyFilter(this IQueryable<StockMovement> query,Guid tenantId,StockMovementFilter? filter)
         {
             query = query.Where(x => x.TenantId == tenantId);
 

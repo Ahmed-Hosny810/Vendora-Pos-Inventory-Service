@@ -20,7 +20,7 @@ namespace Pos.InventoryService.Application.Mapping
             CreateMap<StockAdjustmentItem, StockAdjustmentItemDto>();
             CreateMap<StockTransfer, StockTransferDto>();
             CreateMap<StockTransfer, StockTransferDetailsDto>();
-            CreateMap<StockTransferItem, StockTransferItemDto>();
+            CreateMap<StockTransferItem, StockTransferItemDetailsDto>();
         }
     }
 }

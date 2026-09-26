@@ -51,14 +51,21 @@ namespace Pos.InventoryService.WebApi.Policies
                     InventoryRoles.Admin,
                     InventoryRoles.InventoryStaff);
 
-                //  Sales service permissions.
-                AddPermissionPolicy(options, InventoryPolicies.Reserve,"inventory.reserve");
+                AddRolePolicy(options, InventoryPolicies.Reserve,
+                    InventoryRoles.TenantOwner,
+                    InventoryRoles.Admin,
+                    InventoryRoles.Cashier);
 
-                AddPermissionPolicy(options, InventoryPolicies.CommitReservation,
-                    "inventory.commit_reservation");
+                AddRolePolicy(options, InventoryPolicies.CommitReservation,
+                    InventoryRoles.TenantOwner,
+                    InventoryRoles.Admin,
+                    InventoryRoles.Cashier);
 
-                AddPermissionPolicy(options, InventoryPolicies.RestockReturn,
-                    "inventory.restock_return");
+                AddRolePolicy(options, InventoryPolicies.RestockReturn,
+                    InventoryRoles.TenantOwner,
+                    InventoryRoles.Admin,
+                    InventoryRoles.Cashier);
+
             });
 
             return services;

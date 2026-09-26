@@ -19,15 +19,23 @@ namespace Pos.InventoryService.Infrastructure.Persistence.Repositories
 
         public async Task<StockReservation?> GetByIdAsync(
            Guid tenantId,
-           Guid referenceId,
+           Guid reservationId,
            CancellationToken cancellationToken)
         {
             return await _context.StockReservations
                 .Include(x => x.Items)
                 .SingleOrDefaultAsync(
                     x => x.TenantId == tenantId &&
-                         x.ReferenceId == referenceId,
+                         x.Id == reservationId,
                     cancellationToken);
+        }
+
+        public Task<StockReservation?> GetByReferenceIdAsync(
+            Guid tenantId, Guid referenceId, CancellationToken cancellationToken)
+        {
+            return _context.StockReservations.SingleOrDefaultAsync(
+                x => x.TenantId == tenantId && x.ReferenceId == referenceId,
+                cancellationToken);
         }
 
         public async Task<IReadOnlyList<OverdueReservationDto>> GetOverdueActiveReservationsAsync(DateTime now, int batchSize, CancellationToken cancellationToken)

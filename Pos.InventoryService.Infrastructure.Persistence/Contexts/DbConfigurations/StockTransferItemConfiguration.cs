@@ -10,6 +10,8 @@ public class StockTransferItemConfiguration : IEntityTypeConfiguration<StockTran
     {
         builder.ToTable("StockTransferItems", "inventory");
         builder.HasKey(x => x.Id);
+        // Item IDs are assigned by commands, including items added to tracked drafts.
+        builder.Property(x => x.Id).ValueGeneratedNever();
         builder.Property(x => x.Quantity).HasPrecision(18, 3);
         builder.Property(x => x.ReceivedQuantity).HasPrecision(18, 3);
 

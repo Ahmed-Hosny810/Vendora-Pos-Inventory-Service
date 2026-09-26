@@ -7,6 +7,9 @@
     <Project Path="Pos.InventoryService.Infrastructure.Persistence/Pos.InventoryService.Infrastructure.Persistence.csproj" />
     <Project Path="Pos.InventoryService.Infrastructure.Shared/Pos.InventoryService.Infrastructure.Shared.csproj" />
   </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Pos.InventoryService.IntegrationTests/Pos.InventoryService.IntegrationTests.csproj" />
+  </Folder>
   <Folder Name="/WebApi/">
     <Project Path="Pos.InventoryService.WebApi/Pos.InventoryService.WebApi.csproj" />
   </Folder>

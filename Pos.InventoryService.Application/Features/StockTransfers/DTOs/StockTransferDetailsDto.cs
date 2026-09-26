@@ -3,10 +3,10 @@ namespace Pos.InventoryService.Application.Features.StockTransfers.DTOS
     public class StockTransferDetailsDto : StockTransferDto
     {
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
-        public List<StockTransferItemDto> Items { get; set; } = new();
+        public List<StockTransferItemDetailsDto> Items { get; set; } = new();
     }
 
-    public class StockTransferItemDto
+    public class StockTransferItemDetailsDto
     {
         public Guid Id { get; set; }
         public Guid ProductId { get; set; }

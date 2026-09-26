@@ -31,6 +31,8 @@ namespace Pos.InventoryService.Infrastructure.Shared
             services.Configure<OutboxPublisherOptions>(
                 configuration.GetSection(nameof(OutboxPublisherOptions)));
 
+            services.AddScoped<OutboxDispatcher>();
+
             return services;
         }
     }

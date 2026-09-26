@@ -11,6 +11,8 @@ public class StockAdjustmentItemConfiguration : IEntityTypeConfiguration<StockAd
         builder.ToTable("StockAdjustmentItems", "inventory");
 
         builder.HasKey(x => x.Id);
+        // Item IDs are assigned by commands, including items added to tracked drafts.
+        builder.Property(x => x.Id).ValueGeneratedNever();
 
         builder.Property(x => x.OldQuantity).HasPrecision(18, 3);
 
