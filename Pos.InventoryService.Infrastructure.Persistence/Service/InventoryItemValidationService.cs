@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pos.InventoryService.Application.Exceptions;
+using Pos.InventoryService.Application.Features.StockReservations.DTOS;
 using Pos.InventoryService.Application.Interfaces.Services;
+using Pos.InventoryService.Application.Wrappers;
 using Pos.InventoryService.Infrastructure.Persistence.Contexts;
 using Pos.InventoryService.Infrastructure.Persistence.ReadModels;
 using System;
@@ -104,6 +106,73 @@ namespace Pos.InventoryService.Infrastructure.Persistence.Service
                     "This product requires a whole-number quantity.");
             }
 
+        }
+
+
+        public async Task<Result> ValidateStockItemsAsync(Guid tenantId, Guid branchId, List<StockReservationItemDto> items, CancellationToken cancellationToken)
+        {
+            if (items == null || items.Count == 0)
+                return Result.Failure("At least one item is required.");
+
+            // 1. Confirm the branch is active 
+            var branchExists = await _context.Set<InventoryBranchReadModel>().AnyAsync(
+                x => x.Id == branchId && x.TenantId == tenantId && x.Status == "Active", cancellationToken);
+
+            if (!branchExists)
+                return Result.Failure("Branch was not found or is inactive.");
+
+            // 2. Load every product.
+            var productIds = items.Select(i => i.ProductId).Distinct().ToList();
+
+            var products = await _context.Set<InventoryProductReadModel>()
+                .Where(x => x.TenantId == tenantId && productIds.Contains(x.Id))
+                .ToDictionaryAsync(x => x.Id, cancellationToken);
+
+            // 3. Load every variant belonging to those products.
+            var variantsByProductId = await _context.Set<InventoryVariantReadModel>()
+                .Where(x => x.TenantId == tenantId && productIds.Contains(x.ProductId))
+                .GroupBy(x => x.ProductId)
+                .ToDictionaryAsync(g => g.Key, g => g.ToList(), cancellationToken);
+
+            // 4. Load every distinct unit referenced by those products.
+            var unitIds = products.Values.Select(p => p.UnitId).Distinct().ToList();
+
+            var units = await _context.Set<InventoryUnitReadModel>()
+                .Where(x => unitIds.Contains(x.Id) && (x.TenantId == tenantId || x.TenantId == null))
+                .ToDictionaryAsync(x => x.Id, cancellationToken);
+
+            // 5. Validate each requested item.
+            foreach (var item in items)
+            {
+                if (!products.TryGetValue(item.ProductId, out var product) || product.Status != "Active")
+                    return Result.Failure($"Product {item.ProductId} was not found or is inactive.");
+
+                variantsByProductId.TryGetValue(item.ProductId, out var productVariants);
+                productVariants ??= new List<InventoryVariantReadModel>();
+
+                if (item.ProductVariantId.HasValue)
+                {
+                    var variant = productVariants.SingleOrDefault(v => v.Id == item.ProductVariantId.Value);
+                    if (variant == null || variant.Status != "Active")
+                        return Result.Failure(
+                            $"Variant does not belong to product {item.ProductId} or is inactive.");
+                }
+                else if (productVariants.Count > 0)
+                {
+                    return Result.Failure($"Select a variant for product {item.ProductId}.");
+                }
+
+                if (!units.TryGetValue(product.UnitId, out var unit))
+                    return Result.Failure($"The measurement unit for product {item.ProductId} is unavailable.");
+
+                if (!unit.IsDecimalAllowed && item.Quantity != decimal.Truncate(item.Quantity))
+                    return Result.Failure($"Product {item.ProductId} requires a whole-number quantity.");
+
+                if (item.Quantity <= 0)
+                    return Result.Failure($"Product {item.ProductId}: quantity must be positive.");
+            }
+
+            return Result.Success();
         }
     }
 }

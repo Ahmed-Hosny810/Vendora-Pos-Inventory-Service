@@ -1,6 +1,8 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Options;
 using Pos.InventoryService.Application.Common.Options;
+using Pos.InventoryService.Application.Exceptions;
+using Pos.InventoryService.Application.Features.StockBalances.DTOs;
 using Pos.InventoryService.Application.Features.StockReservations.DTOS;
 using Pos.InventoryService.Application.Interfaces;
 using Pos.InventoryService.Application.Interfaces.Repositories;
@@ -53,32 +55,32 @@ namespace Pos.InventoryService.Application.Features.StockReservations.Commands.C
             var tenantId = _currentUserService.TenantId;
 
             if (!tenantId.HasValue || tenantId.Value == Guid.Empty)
-                throw new UnauthorizedAccessException(
-                    "A valid tenant is required.");
+                throw new UnauthorizedAccessException("A valid tenant is required.");
 
             // 2. Check whether this sale already has a reservation.
-            var existingReservation =
-                await _stockReservationRepository.GetByReferenceIdAsync(
-                    tenantId.Value,
-                    request.SaleId,
-                    cancellationToken);
+            var existingReservation = await _stockReservationRepository.GetByReferenceIdAsync(
+                tenantId.Value, request.SaleId, cancellationToken);
 
             if (existingReservation != null)
-            {
-                if (existingReservation.Status != StockReservationStatus.Active)
-                {
-                    return Result<Guid>.Failure(
-                        $"This reservation is already {existingReservation.Status}.");
-                }
+                return ValidateExistingReservation(existingReservation, request);
 
-                if (existingReservation.ExpiresAt <= DateTime.UtcNow)
-                    return Result<Guid>.Failure(
-                        "This reservation has expired.");
+            // 3. Validate every requested item in a single batch.
+            var validationResult = await _itemValidationService.ValidateStockItemsAsync(
+                tenantId.Value, request.BranchId, request.Items, cancellationToken);
 
-                return Result<Guid>.Success(existingReservation.Id);
-            }
+            if (validationResult.IsFailure)
+                return Result<Guid>.Failure(validationResult.Errors.ToArray());
 
-            // 3. Create the reservation and calculate its expiry.
+            // 4. Load every needed stock balance in a single batch, not one call per item.
+            var balances = await _stockBalanceRepository.GetBatchStockAvailabilityAsync(
+                tenantId: tenantId.Value,
+                branchId: request.BranchId,
+                items: request.Items.Select(i => new StockAvailabilityItem { ProductId=i.ProductId,ProductVariantId=i.ProductVariantId} ).ToList(),
+                cancellationToken: cancellationToken);
+
+            var balanceByKey = balances.ToDictionary(b => (b.ProductId, b.ProductVariantId));
+
+            // 5. Create the reservation and calculate its expiry.
             var now = DateTime.UtcNow;
 
             var reservation = new StockReservation
@@ -95,37 +97,12 @@ namespace Pos.InventoryService.Application.Features.StockReservations.Commands.C
 
             foreach (var item in request.Items)
             {
-                // 4. Validate the branch, product, variant and unit rules.
-                await _itemValidationService.ValidateStockItemAsync(
-                    tenantId.Value,
-                    request.BranchId,
-                    item.ProductId,
-                    item.ProductVariantId,
-                    item.Quantity,
-                    cancellationToken);
-
-                // 5. Load the tracked balance and check available stock.
-                var balance =
-                    await _stockBalanceRepository.GetProductStockBalanceAsync(
-                        tenantId: tenantId.Value,
-                        branchId: request.BranchId,
-                        productId: item.ProductId,
-                        productVariantId: item.ProductVariantId,
-                        cancellationToken: cancellationToken);
-
-                if (balance == null)
-                {
-                    return Result<Guid>.Failure(
-                        $"Stock balance for product {item.ProductId} was not found.");
-                }
+                if (!balanceByKey.TryGetValue((item.ProductId, item.ProductVariantId), out var balance))
+                    return Result<Guid>.Failure($"Stock balance for product {item.ProductId} was not found.");
 
                 if (item.Quantity > balance.AvailableQuantity)
-                {
-                    return Result<Guid>.Failure(
-                        $"Insufficient stock for product {item.ProductId}.");
-                }
+                    return Result<Guid>.Failure($"Insufficient stock for product {item.ProductId}.");
 
-                // 6. Add the reservation item.
                 reservation.Items.Add(new StockReservationItem
                 {
                     Id = Guid.NewGuid(),
@@ -136,19 +113,67 @@ namespace Pos.InventoryService.Application.Features.StockReservations.Commands.C
                     Quantity = item.Quantity
                 });
 
-                // 7. Increase reserved stock without changing on-hand stock.
+                // Increase reserved stock without changing on-hand stock.
                 balance.QuantityReserved += item.Quantity;
                 balance.UpdatedAt = now;
             }
 
-            // 8. Save the reservation, items and balance changes together.
-            await _stockReservationRepository.AddAsync(
-                reservation,
-                cancellationToken);
+            // 6. Save the reservation, items and balance changes together.
+            await _stockReservationRepository.AddAsync(reservation, cancellationToken);
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            try
+            {
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+            }
+            catch (ConcurrencyConflictException)
+            {
+                return Result<Guid>.Failure(
+                    "Stock changed while reserving it. Reload and try again.");
+            }
 
             return Result<Guid>.Success(reservation.Id);
+        }
+
+        private static Result<Guid> ValidateExistingReservation(
+            StockReservation existingReservation, CreateStockReservationCommand request)
+        {
+            if (existingReservation.Status != StockReservationStatus.Active)
+                return Result<Guid>.Failure($"This reservation is already {existingReservation.Status}.");
+
+            if (existingReservation.ExpiresAt <= DateTime.UtcNow)
+                return Result<Guid>.Failure("This reservation has expired.");
+
+            if (existingReservation.BranchId != request.BranchId)
+                return Result<Guid>.Failure("The existing reservation belongs to a different branch.");
+
+            // The cart may have changed between attempts 
+            if (!ItemsMatch(existingReservation.Items, request.Items))
+                return Result<Guid>.Failure(
+                    "The sale's items changed since the reservation was created. " +
+                    "Release the existing reservation before retrying.");
+
+            return Result<Guid>.Success(existingReservation.Id);
+        }
+
+        private static bool ItemsMatch(
+            ICollection<StockReservationItem> existingItems,
+            List<StockReservationItemDto> requestedItems)
+        {
+            if (existingItems.Count != requestedItems.Count)
+                return false;
+
+            var existingByKey = existingItems.ToDictionary(i => (i.ProductId, i.ProductVariantId), i => i.Quantity);
+
+            foreach (var item in requestedItems)
+            {
+                if (!existingByKey.TryGetValue((item.ProductId, item.ProductVariantId), out var existingQuantity))
+                    return false;
+
+                if (existingQuantity != item.Quantity)
+                    return false;
+            }
+
+            return true;
         }
     }
 }

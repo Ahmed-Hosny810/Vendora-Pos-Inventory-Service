@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Authorization;
 using OpenIddict.Validation.AspNetCore;
 using Pos.InventoryService.Application.Common.Constants;
@@ -78,6 +79,8 @@ namespace Pos.InventoryService.WebApi.Policies
 
             policy.RequireAuthenticatedUser();
 
+            RequireActiveSubscription(policy);
+
             policy.RequireAssertion(context =>
                 Guid.TryParse(
                     context.User.FindFirst("tenant_id")?.Value,
@@ -106,6 +109,26 @@ namespace Pos.InventoryService.WebApi.Policies
             {
                 RequireTenant(policy);
                 policy.RequireClaim("permission", permission);
+            });
+        }
+
+        private static void RequireActiveSubscription(AuthorizationPolicyBuilder policy)
+        {
+            policy.RequireClaim("business_access", "true");
+            policy.RequireAssertion(context =>
+            {
+                var now = DateTimeOffset.UtcNow;
+
+                return DateTimeOffset.TryParseExact(
+                    context.User.FindFirst("subscription_access_valid_until")?.Value,
+                    "O", CultureInfo.InvariantCulture, DateTimeStyles.None,
+                    out var validUntil)
+                    && validUntil > now
+                    && DateTimeOffset.TryParseExact(
+                        context.User.FindFirst("subscription_ends_at")?.Value,
+                        "O", CultureInfo.InvariantCulture, DateTimeStyles.None,
+                        out var subscriptionEndsAt)
+                    && subscriptionEndsAt > now;
             });
         }
     }
