@@ -1,4 +1,5 @@
 using Asp.Versioning;
+using Pos.InventoryService.Application.Features.StockReservations.Queries.GetByIdQuery;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,6 +24,18 @@ namespace Pos.InventoryService.WebApi.Controllers.V1
             _mediator = mediator;
         }
 
+        [HttpGet("{id:guid}")]
+        [Authorize(Policy = InventoryPolicies.Reserve)]
+        public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(new GetStockReservationByIdQuery
+            {
+                ReservationId = id
+            }, cancellationToken);
+            return result.IsSuccess
+                ? Ok(new Response<StockReservationDetailsDto>(data: result.Value!))
+                : NotFound(new Response<StockReservationDetailsDto>(message: string.Join(", ", result.Errors)));
+        }
         [HttpPost]
         [Authorize(Policy = InventoryPolicies.Reserve)]
         public async Task<IActionResult> Create(

@@ -1,4 +1,4 @@
-using MediatR;
+﻿using MediatR;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -36,7 +36,7 @@ public sealed class TestFixture : IDisposable
     public Guid DecimalUnitId { get; } = Guid.NewGuid();
     public bool IsSqlServer { get; }
 
-    public TestFixture()
+    public TestFixture(Action<IServiceCollection>? configureServices = null)
     {
         var name = "InventoryIntegrationTests_" + Guid.NewGuid().ToString("N");
         var server = Environment.GetEnvironmentVariable("INVENTORY_TEST_SQL_CONNECTION");
@@ -67,6 +67,8 @@ public sealed class TestFixture : IDisposable
         services.AddSingleton<IEventPublisher>(Publisher);
         services.AddScoped<IStockReservationReleaseService, StockReservationReleaseService>();
         services.AddScoped<OutboxDispatcher>();
+        services.AddScoped<IInboxEventDispatcher, InboxEventDispatcher>();
+        configureServices?.Invoke(services);
         Registrations = services.ToList();
         Services = services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true });
         using var scope = Services.CreateScope();

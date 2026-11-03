@@ -33,6 +33,24 @@ namespace Pos.InventoryService.Infrastructure.Shared
 
             services.AddScoped<OutboxDispatcher>();
 
+            services.AddOptions<RabbitMqConsumerOptions>()
+                .Bind(configuration.GetSection(nameof(RabbitMqConsumerOptions)))
+                .Validate(options => !string.IsNullOrWhiteSpace(options.SourceExchangeName) &&
+                    !string.IsNullOrWhiteSpace(options.QueueName) &&
+                    !string.IsNullOrWhiteSpace(options.DeadLetterExchange) &&
+                    !string.IsNullOrWhiteSpace(options.DeadLetterQueue),
+                    "Consumer exchange and queue names are required.")
+                .Validate(options => options.RoutingKeys != null &&
+                    options.RoutingKeys.Length > 0 &&
+                    options.RoutingKeys.All(key => !string.IsNullOrWhiteSpace(key)),
+                    "At least one consumer routing key is required.")
+                .Validate(options => options.PrefetchCount > 0 && options.MaxDeliveryAttempts > 0,
+                    "Consumer prefetch count and delivery attempts must be positive.")
+                .ValidateOnStart();
+
+            services.AddScoped<IInboxEventDispatcher, InboxEventDispatcher>();
+            services.AddHostedService<RabbitMqConsumerWorker>();
+
             return services;
         }
     }

@@ -1,4 +1,7 @@
 ﻿
+using Pos.InventoryService.Application.Features.StockReservations.DTOS;
+using Pos.InventoryService.Application.Wrappers;
+
 namespace Pos.InventoryService.Application.Interfaces.Services
 {
     /// <summary>
@@ -48,5 +51,10 @@ namespace Pos.InventoryService.Application.Interfaces.Services
             Guid? productVariantId,
             decimal quantity,
             CancellationToken cancellationToken);
+
+
+        Task<Result> ValidateStockItemsAsync(
+        Guid tenantId, Guid branchId, List<StockReservationItemDto> items,
+        CancellationToken cancellationToken);
     }
 }
