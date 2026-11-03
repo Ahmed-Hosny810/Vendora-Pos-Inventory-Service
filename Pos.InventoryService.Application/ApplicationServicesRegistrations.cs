@@ -5,6 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Pos.InventoryService.Application.Behaviours;
 using Pos.InventoryService.Application.Common.Options;
 using System.Reflection;
+using Pos.InventoryService.Application.Features.StockReturns.Services;
+using Pos.InventoryService.Application.Interfaces.Services;
+using Pos.InventoryService.Application.Events.Handlers;
 
 
 namespace Pos.InventoryService.Application
@@ -20,6 +23,8 @@ namespace Pos.InventoryService.Application
             services.AddMediatR(cfg =>
                 cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+            services.AddScoped<ICustomerReturnRestockService, CustomerReturnRestockService>();
+            services.AddScoped<IIntegrationEventHandler, SaleReturnCompletedHandler>();
 
             services.Configure<StockReservationOptions>(configuration.GetSection(nameof(StockReservationOptions)));
 

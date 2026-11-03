@@ -7,6 +7,7 @@ namespace Pos.InventoryService.Application.Events
           Guid ReturnId,
           Guid OriginalSaleId,
           Guid ReceivingBranchId,
+          Guid ProcessedByUserId,
           List<SaleReturnCompletedItem> Items,
           DateTime OccurredAt);
 

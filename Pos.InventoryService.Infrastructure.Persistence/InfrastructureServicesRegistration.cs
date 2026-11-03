@@ -42,6 +42,8 @@ namespace Pos.InventoryService.Infrastructure.Persistence
 
             services.AddScoped<IInventoryItemValidationService,InventoryItemValidationService>();
 
+            services.AddScoped<IInboxMessageRepositoryAsync, InboxMessageRepositoryAsync>();
+
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             services.AddScoped<LowStockAlertEvaluator>();

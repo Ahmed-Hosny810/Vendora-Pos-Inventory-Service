@@ -22,6 +22,36 @@ namespace Pos.InventoryService.Infrastructure.Persistence.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Pos.InventoryService.Domain.Models.InboxMessage", b =>
+                {
+                    b.Property<string>("ConsumerName")
+                        .HasMaxLength(150)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(150)");
+
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(150)");
+
+                    b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ProcessedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ConsumerName", "EventId");
+
+                    b.ToTable("InboxMessages", "inventory");
+                });
+
             modelBuilder.Entity("Pos.InventoryService.Domain.Models.LowStockAlert", b =>
                 {
                     b.Property<Guid>("Id")
@@ -169,7 +199,6 @@ namespace Pos.InventoryService.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Pos.InventoryService.Domain.Models.StockAdjustmentItem", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("AdjustmentId")
@@ -460,7 +489,6 @@ namespace Pos.InventoryService.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Pos.InventoryService.Domain.Models.StockTransferItem", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ProductId")
